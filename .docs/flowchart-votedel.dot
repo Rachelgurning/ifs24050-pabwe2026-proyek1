@@ -1,0 +1,45 @@
+digraph G {
+  graph [rankdir=TB, fontname="DejaVu Sans", nodesep=0.35, ranksep=0.4, dpi=170, bgcolor=white, pad=0.2];
+  node  [fontname="DejaVu Sans", fontsize=11, style="filled", fillcolor="#eff6ff", color="#1e3a8a", penwidth=1.4];
+  edge  [fontname="DejaVu Sans", fontsize=10, color="#334155"];
+
+  start  [label="Mulai", shape=oval, fillcolor="#1e3a8a", fontcolor=white];
+  home   [label="Beranda VoteDel", shape=box, style="rounded,filled"];
+  auth   [label="Sudah login?", shape=diamond, fillcolor="#fef3c7"];
+  login  [label="Masuk / Daftar\n(validasi NIM & kata sandi)", shape=box, style="rounded,filled"];
+  role   [label="Peran pengguna?", shape=diamond, fillcolor="#fef3c7"];
+  list   [label="Daftar Pemilihan\n(filter status)", shape=box, style="rounded,filled"];
+  detail [label="Detail Pemilihan\n+ profil kandidat", shape=box, style="rounded,filled"];
+  status [label="Status pemilihan?", shape=diamond, fillcolor="#fef3c7"];
+  wait   [label="Tampilkan info\n'belum dibuka'", shape=box, style="rounded,filled"];
+  voted  [label="Sudah memilih?", shape=diamond, fillcolor="#fef3c7"];
+  pick   [label="Pilih kandidat\n→ konfirmasi", shape=box, style="rounded,filled"];
+  send   [label="Kirim suara ke API\n(validasi server)", shape=box, style="rounded,filled"];
+  ok     [label="Suara valid?", shape=diamond, fillcolor="#fef3c7"];
+  saved  [label="Suara tercatat\n(1 suara / pemilih)", shape=box, style="rounded,filled", fillcolor="#dcfce7"];
+  err    [label="Tampilkan pesan\nkesalahan", shape=box, style="rounded,filled", fillcolor="#fee2e2"];
+  thanks [label="Tampilkan 'suara\nsudah tercatat'", shape=box, style="rounded,filled"];
+  result [label="Hasil pemilihan\n(persentase suara)", shape=box, style="rounded,filled", fillcolor="#dcfce7"];
+  admin  [label="Dasbor Admin:\nkelola pemilihan & kandidat", shape=box, style="rounded,filled"];
+  lock   [label="Ada suara masuk?\nData dikunci", shape=box, style="rounded,filled"];
+  fin    [label="Selesai", shape=oval, fillcolor="#1e3a8a", fontcolor=white];
+
+  start -> home -> auth;
+  auth -> login [label="belum"];
+  login -> role;
+  auth -> role [label="sudah"];
+  role -> list [label="mahasiswa"];
+  role -> admin [label="admin"];
+  admin -> lock -> fin;
+  list -> detail -> status;
+  status -> wait [label="akan datang"];
+  status -> result [label="selesai"];
+  status -> voted [label="berlangsung"];
+  voted -> thanks [label="ya"];
+  voted -> pick [label="belum"];
+  pick -> send -> ok;
+  ok -> saved [label="ya"];
+  ok -> err [label="tidak"];
+  err -> pick;
+  wait -> fin; result -> fin; thanks -> fin; saved -> fin;
+}

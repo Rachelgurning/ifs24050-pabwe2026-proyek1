@@ -22,6 +22,7 @@ import {
   selectElectionError,
   selectElections,
 } from '../../elections/states/electionSlice.js';
+import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 export default function AdminDashboardPage() {
   const dispatch = useDispatch();
@@ -45,7 +46,7 @@ export default function AdminDashboardPage() {
     });
     if (!confirmed) return;
 
-    const result = await dispatch(asyncDeleteElection(election.id));
+    const result = await dispatchThunk(dispatch, asyncDeleteElection(election.id));
 
     if (asyncDeleteElection.rejected.match(result)) {
       await showErrorDialog({ title: 'Gagal menghapus pemilihan', text: result.payload });

@@ -17,6 +17,7 @@ import {
 } from '../../elections/states/electionSlice.js';
 import { CandidateManager } from '../components/CandidateManager.jsx';
 import { ElectionForm } from '../components/ElectionForm.jsx';
+import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 function CreateElection() {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ function CreateElection() {
   useDocumentMeta('Buat Pemilihan', 'Buat pemilihan baru di VoteDel.');
 
   const handleCreate = async (payload) => {
-    const result = await dispatch(asyncCreateElection(payload));
+    const result = await dispatchThunk(dispatch, asyncCreateElection(payload));
 
     if (asyncCreateElection.rejected.match(result)) {
       throw new Error(result.payload);
@@ -60,7 +61,10 @@ function EditElection({ id }) {
   useDocumentMeta('Ubah Pemilihan', 'Ubah data pemilihan dan kelola kandidat di VoteDel.');
 
   const handleUpdate = async (payload) => {
-    const result = await dispatch(asyncUpdateElection({ id: election.id, payload }));
+    const result = await dispatchThunk(
+      dispatch,
+      asyncUpdateElection({ id: election.id, payload }),
+    );
 
     if (asyncUpdateElection.rejected.match(result)) {
       throw new Error(result.payload);

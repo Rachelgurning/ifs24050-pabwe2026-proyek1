@@ -6,6 +6,7 @@ import { ROUTES } from '../../../utils/constants.js';
 import { validateLoginForm } from '../../../utils/validators.js';
 import { AuthForm } from '../components/AuthForm.jsx';
 import { asyncAuthLogin } from '../states/authSlice.js';
+import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 const FIELDS = [
   { name: 'nim', label: 'NIM', autoComplete: 'username' },
@@ -21,7 +22,7 @@ export default function LoginPage() {
   useDocumentMeta('Masuk', 'Masuk ke VoteDel menggunakan NIM dan kata sandi untuk memberikan suara.');
 
   const handleSubmit = async (values) => {
-    const result = await dispatch(asyncAuthLogin(values));
+    const result = await dispatchThunk(dispatch, asyncAuthLogin(values));
 
     if (asyncAuthLogin.rejected.match(result)) {
       throw new Error(result.payload);

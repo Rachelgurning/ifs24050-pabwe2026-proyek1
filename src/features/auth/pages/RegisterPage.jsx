@@ -6,6 +6,7 @@ import { ROUTES } from '../../../utils/constants.js';
 import { validateRegisterForm } from '../../../utils/validators.js';
 import { AuthForm } from '../components/AuthForm.jsx';
 import { asyncAuthRegister } from '../states/authSlice.js';
+import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 const FIELDS = [
   { name: 'nim', label: 'NIM', autoComplete: 'username', hint: '5-15 karakter, huruf atau angka.' },
@@ -33,7 +34,7 @@ export default function RegisterPage() {
   useDocumentMeta('Daftar', 'Buat akun VoteDel dengan NIM Anda untuk mengikuti pemilihan mahasiswa.');
 
   const handleSubmit = async ({ nim, name, password }) => {
-    const result = await dispatch(asyncAuthRegister({ nim, name, password }));
+    const result = await dispatchThunk(dispatch, asyncAuthRegister({ nim, name, password }));
 
     if (asyncAuthRegister.rejected.match(result)) {
       throw new Error(result.payload);

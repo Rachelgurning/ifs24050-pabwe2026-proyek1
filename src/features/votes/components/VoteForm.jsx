@@ -6,6 +6,7 @@ import { Button } from '../../../components/ui/Button.jsx';
 import { CandidateProfile } from '../../elections/components/CandidateProfile.jsx';
 import { candidateShape } from '../../elections/components/electionPropTypes.js';
 import { asyncCastVote, selectVoteError, voteStateReset } from '../states/voteSlice.js';
+import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 /** Formulir pemilihan kandidat dengan langkah konfirmasi sebelum suara dikirim. */
 export function VoteForm({ electionId, candidates, onVoted }) {
@@ -25,7 +26,10 @@ export function VoteForm({ electionId, candidates, onVoted }) {
   };
 
   const handleConfirm = async () => {
-    const result = await dispatch(asyncCastVote({ electionId, candidateId: selectedId }));
+    const result = await dispatchThunk(
+      dispatch,
+      asyncCastVote({ electionId, candidateId: selectedId }),
+    );
 
     if (asyncCastVote.fulfilled.match(result)) {
       onVoted();

@@ -7,6 +7,7 @@ import { showConfirmDialog, showErrorDialog } from '../../../helpers/toolsHelper
 import { candidateShape } from '../../elections/components/electionPropTypes.js';
 import { asyncDeleteCandidate, asyncSaveCandidate } from '../../elections/states/electionSlice.js';
 import { CandidateForm } from './CandidateForm.jsx';
+import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 const NEW_CANDIDATE = 'new';
 
@@ -18,7 +19,8 @@ export function CandidateManager({ electionId, candidates, locked, onChanged }) 
   const closeForm = () => setEditing(null);
 
   const handleSave = async (payload) => {
-    const result = await dispatch(
+    const result = await dispatchThunk(
+      dispatch,
       asyncSaveCandidate({
         electionId,
         candidateId: editing === NEW_CANDIDATE ? null : editing.id,
@@ -41,7 +43,7 @@ export function CandidateManager({ electionId, candidates, locked, onChanged }) 
     });
     if (!confirmed) return;
 
-    const result = await dispatch(asyncDeleteCandidate(candidate.id));
+    const result = await dispatchThunk(dispatch, asyncDeleteCandidate(candidate.id));
 
     if (asyncDeleteCandidate.rejected.match(result)) {
       await showErrorDialog({ title: 'Gagal menghapus kandidat', text: result.payload });

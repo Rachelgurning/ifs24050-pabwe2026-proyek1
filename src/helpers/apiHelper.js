@@ -57,18 +57,9 @@ function buildUrl(path, params) {
   return BASE_URL + path + search;
 }
 
-/**
- * ID korelasi permintaan untuk keperluan pelacakan log (bukan nilai rahasia).
- * Math.random() aman di sini: ID tidak dipakai untuk autentikasi, token, atau kriptografi.
- */
-export function createRequestId() {
-  return Math.random().toString(36).slice(2, 12);
-}
-
 function buildHeaders({ hasBody, token }) {
   return {
     Accept: 'application/json',
-    'X-Request-Id': createRequestId(),
     ...(hasBody && { 'Content-Type': 'application/json' }),
     ...(token && { Authorization: `Bearer ${token}` }),
   };

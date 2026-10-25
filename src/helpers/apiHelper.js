@@ -5,7 +5,7 @@ const HTTP_UNAUTHORIZED = 401;
 const HTTP_NO_CONTENT = 204;
 
 /** Base URL REST API VoteDel, di-inject Vite melalui `define` pada vite.config.js. */
-export const BASE_URL = String(VOTEDEL_BASEURL ?? '/api').replace(/\/$/, '');
+export const BASE_URL = String(VOTEDEL_BASEURL).replace(/\/$/, '');
 
 /** Error terstandardisasi dari lapisan API (status HTTP + detail validasi per field). */
 export class ApiError extends Error {

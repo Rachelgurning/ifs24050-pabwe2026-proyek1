@@ -12,6 +12,7 @@ import {
   asyncCreateElection,
   asyncFetchElection,
   asyncUpdateElection,
+  electionCleared,
   selectElection,
   selectElectionError,
 } from '../../elections/states/electionSlice.js';
@@ -50,13 +51,16 @@ function EditElection({ id }) {
   const dispatch = useDispatch();
   const election = useSelector(selectElection);
   const error = useSelector(selectElectionError);
-  const isLoading = useSelector((state) => state.elections.isElection);
 
   const reload = useCallback(() => dispatch(asyncFetchElection(id)), [dispatch, id]);
 
+  // Data dibersihkan saat keluar agar halaman ubah lain tidak menampilkan data basi.
   useEffect(() => {
     reload();
-  }, [reload]);
+    return () => {
+      dispatch(electionCleared());
+    };
+  }, [reload, dispatch]);
 
   useDocumentMeta('Ubah Pemilihan', 'Ubah data pemilihan dan kelola kandidat di VoteDel.');
 
@@ -74,7 +78,8 @@ function EditElection({ id }) {
   };
 
   // Error mutasi (simpan kandidat/pemilihan) ditampilkan di formulir; halaman hanya
-  // diganti ErrorState bila data pemilihan memang gagal dimuat.
+  // diganti ErrorState bila data pemilihan memang gagal dimuat. Saat memuat ulang
+  // setelah simpan, formulir tetap tampil agar pesan sukses terlihat.
   if (!election) {
     return error ? (
       <ErrorState error={{ message: error }} onRetry={reload} />
@@ -82,7 +87,6 @@ function EditElection({ id }) {
       <LoadingState label="Memuat data pemilihan…" />
     );
   }
-  if (isLoading) return <LoadingState label="Memuat data pemilihan…" />;
 
   const locked = election.totalVotes > 0;
 

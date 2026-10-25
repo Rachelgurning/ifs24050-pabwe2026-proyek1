@@ -148,6 +148,7 @@ describe('ElectionFormPage', () => {
     await waitFor(() =>
       expect(update).toHaveBeenCalledWith(1, expect.objectContaining({ title: 'Pemilihan Ketua BEM 2027' })),
     );
+    expect(await screen.findByText('Perubahan berhasil disimpan.')).toBeInTheDocument();
   });
 
   it('menampilkan error update dari server', async () => {

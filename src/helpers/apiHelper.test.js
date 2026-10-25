@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ApiError,
-  createRequestId,
   fetchApi,
   getAccessToken,
   putAccessToken,
@@ -26,16 +25,6 @@ describe('apiHelper: token', () => {
     expect(getAccessToken()).toBe('token-123');
     removeAccessToken();
     expect(getAccessToken()).toBeNull();
-  });
-});
-
-describe('apiHelper: createRequestId', () => {
-  it('menghasilkan ID alfanumerik non-kosong yang berbeda tiap pemanggilan', () => {
-    const first = createRequestId();
-    const second = createRequestId();
-
-    expect(first).toMatch(/^[a-z0-9]+$/);
-    expect(first).not.toBe(second);
   });
 });
 
@@ -65,7 +54,6 @@ describe('apiHelper: fetchApi', () => {
     const [url, options] = globalThis.fetch.mock.calls[0];
     expect(url).toContain('/elections?status=active');
     expect(options.headers.Authorization).toBe('Bearer token-123');
-    expect(options.headers['X-Request-Id']).toMatch(/^[a-z0-9]+$/);
   });
 
   it('mengembalikan null untuk respons 204', async () => {

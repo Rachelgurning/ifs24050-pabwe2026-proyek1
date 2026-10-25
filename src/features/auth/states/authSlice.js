@@ -50,9 +50,9 @@ export const asyncAuthRegister = createAsyncThunk(
 
 export const asyncAuthProfile = createAsyncThunk(
   AUTH_ACTION_TYPE.PROFILE,
-  async (_arg, { rejectWithValue, signal }) => {
+  async (_arg, { rejectWithValue }) => {
     try {
-      return await authApi.profile(signal);
+      return await authApi.profile();
     } catch (error) {
       removeAccessToken();
       return rejectWithValue(toMessage(error));

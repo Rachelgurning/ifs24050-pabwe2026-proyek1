@@ -21,12 +21,12 @@ export default function ResultsPage() {
   const user = useSelector(selectAuthUser);
   const data = useSelector(selectElectionResults);
   const error = useSelector(selectElectionError);
+  const isLoading = useSelector((state) => state.elections.isResults);
 
   const reload = useCallback(() => dispatch(asyncFetchResults(id)), [dispatch, id]);
 
   useEffect(() => {
-    const request = reload();
-    return () => request.abort();
+    reload();
   }, [reload, user?.id]);
 
   useDocumentMeta(
@@ -34,7 +34,7 @@ export default function ResultsPage() {
     'Hasil perolehan suara pemilihan mahasiswa di VoteDel.',
   );
 
-  if (error && !data) {
+  if (error) {
     return (
       <div className="stack">
         <ErrorState error={{ message: error }} onRetry={reload} />
@@ -47,7 +47,7 @@ export default function ResultsPage() {
     );
   }
 
-  if (!data) return <LoadingState label="Memuat hasil pemilihan…" />;
+  if (!data || isLoading) return <LoadingState label="Memuat hasil pemilihan…" />;
 
   const { election, totalVotes, results } = data;
 

@@ -28,7 +28,7 @@ export default function ElectionsPage() {
   const user = useSelector(selectAuthUser);
   const elections = useSelector(selectElections);
   const error = useSelector(selectElectionError);
-  const isLoading = useSelector((state) => state.elections.isElectionsLoading);
+  const isLoading = useSelector((state) => state.elections.isElections);
   const [filter, setFilter] = useState(ALL_FILTER);
 
   useDocumentMeta(
@@ -38,8 +38,7 @@ export default function ElectionsPage() {
 
   // Daftar dimuat ulang saat sesi berubah agar penanda "sudah memilih" selalu akurat.
   useEffect(() => {
-    const request = dispatch(asyncFetchElections());
-    return () => request.abort();
+    dispatch(asyncFetchElections());
   }, [dispatch, user?.id]);
 
   const visibleElections = elections.filter(
@@ -50,7 +49,7 @@ export default function ElectionsPage() {
     if (isLoading && elections.length === 0) {
       return <LoadingState label="Memuat daftar pemilihan…" />;
     }
-    if (error && elections.length === 0) {
+    if (error) {
       return <ErrorState error={{ message: error }} onRetry={() => dispatch(asyncFetchElections())} />;
     }
     if (visibleElections.length === 0) {
@@ -77,19 +76,20 @@ export default function ElectionsPage() {
         subtitle="Pilih pemilihan untuk melihat kandidat dan memberikan suara."
       />
 
-      <div className="filter-bar" role="group" aria-label="Filter status pemilihan">
+      <fieldset className="filter-bar">
+        <legend className="visually-hidden">Filter status pemilihan</legend>
         {FILTERS.map(({ value, label }) => (
           <button
             key={value}
             type="button"
-            className={`chip${filter === value ? ' chip--active' : ''}`}
+            className={filter === value ? 'chip chip--active' : 'chip'}
             aria-pressed={filter === value}
             onClick={() => setFilter(value)}
           >
             {label}
           </button>
         ))}
-      </div>
+      </fieldset>
 
       {renderContent()}
     </>

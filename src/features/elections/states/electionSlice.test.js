@@ -30,7 +30,7 @@ describe('electionSlice: reducer', () => {
     });
 
     expect(selectElections({ elections: state })).toHaveLength(1);
-    expect(state.isElectionsLoading).toBe(false);
+    expect(state.isElections).toBe(false);
   });
 
   it('menyimpan detail dan membersihkannya kembali', () => {

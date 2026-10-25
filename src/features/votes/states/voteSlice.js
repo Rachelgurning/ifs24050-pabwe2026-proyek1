@@ -8,8 +8,8 @@ export const VOTE_ACTION_TYPE = Object.freeze({
 
 const initialState = {
   history: [],
-  isHistoryLoading: false,
-  isVoteSubmitting: false,
+  isHistory: false,
+  isVoting: false,
   isVoted: false,
   error: null,
 };
@@ -29,9 +29,9 @@ export const asyncCastVote = createAsyncThunk(
 
 export const asyncFetchVoteHistory = createAsyncThunk(
   VOTE_ACTION_TYPE.HISTORY,
-  async (_arg, { rejectWithValue, signal }) => {
+  async (_arg, { rejectWithValue }) => {
     try {
-      return await voteApi.history(signal);
+      return await voteApi.history();
     } catch (error) {
       return rejectWithValue(toMessage(error));
     }
@@ -50,28 +50,28 @@ const voteSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(asyncCastVote.pending, (state) => {
-        state.isVoteSubmitting = true;
+        state.isVoting = true;
         state.isVoted = false;
         state.error = null;
       })
       .addCase(asyncCastVote.fulfilled, (state) => {
-        state.isVoteSubmitting = false;
+        state.isVoting = false;
         state.isVoted = true;
       })
       .addCase(asyncCastVote.rejected, (state, action) => {
-        state.isVoteSubmitting = false;
+        state.isVoting = false;
         state.error = action.payload;
       })
       .addCase(asyncFetchVoteHistory.pending, (state) => {
-        state.isHistoryLoading = true;
+        state.isHistory = true;
         state.error = null;
       })
       .addCase(asyncFetchVoteHistory.fulfilled, (state, action) => {
-        state.isHistoryLoading = false;
+        state.isHistory = false;
         state.history = action.payload;
       })
       .addCase(asyncFetchVoteHistory.rejected, (state, action) => {
-        state.isHistoryLoading = false;
+        state.isHistory = false;
         state.error = action.payload;
       });
   },

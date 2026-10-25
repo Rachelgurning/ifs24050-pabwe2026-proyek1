@@ -23,13 +23,13 @@ export default function DetailPage() {
   const user = useSelector(selectAuthUser);
   const election = useSelector(selectElection);
   const error = useSelector(selectElectionError);
-  const isLoading = useSelector((state) => state.elections.isElection);
 
   const reload = useCallback(() => dispatch(asyncFetchElection(id)), [dispatch, id]);
 
   useEffect(() => {
-    reload();
+    const request = reload();
     return () => {
+      request.abort();
       dispatch(electionCleared());
     };
   }, [reload, dispatch, user?.id]);
@@ -39,8 +39,8 @@ export default function DetailPage() {
     election?.description || 'Detail pemilihan mahasiswa di VoteDel.',
   );
 
-  if (error) return <ErrorState error={{ message: error }} onRetry={reload} />;
-  if (!election || isLoading) return <LoadingState label="Memuat detail pemilihan…" />;
+  if (error && !election) return <ErrorState error={{ message: error }} onRetry={reload} />;
+  if (!election) return <LoadingState label="Memuat detail pemilihan…" />;
 
   const showCandidateList = election.status !== ELECTION_STATUS.ACTIVE || !user || election.hasVoted;
 

@@ -29,7 +29,9 @@ export default function App() {
 
   // Token yang tersimpan diverifikasi ke server sebelum halaman dirender.
   useEffect(() => {
-    if (getAccessToken()) dispatch(asyncAuthProfile());
+    if (!getAccessToken()) return undefined;
+    const request = dispatch(asyncAuthProfile());
+    return () => request.abort();
   }, [dispatch]);
 
   // Token yang ditolak server (401) langsung mengakhiri sesi di sisi klien.
@@ -38,7 +40,16 @@ export default function App() {
     return () => setUnauthorizedHandler(null);
   }, [dispatch]);
 
-  if (isPreload) return <LoadingState label="Memuat sesi…" />;
+  // Landmark <main> tetap ada selama sesi dipulihkan (axe: landmark-one-main).
+  if (isPreload) {
+    return (
+      <main id="main-content" className="main">
+        <div className="container">
+          <LoadingState label="Memuat sesi…" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <Routes>

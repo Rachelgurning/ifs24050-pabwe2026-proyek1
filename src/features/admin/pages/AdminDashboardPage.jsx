@@ -22,13 +22,12 @@ import {
   selectElectionError,
   selectElections,
 } from '../../elections/states/electionSlice.js';
-import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 export default function AdminDashboardPage() {
   const dispatch = useDispatch();
   const elections = useSelector(selectElections);
   const error = useSelector(selectElectionError);
-  const isLoading = useSelector((state) => state.elections.isElections);
+  const isLoading = useSelector((state) => state.elections.isElectionsLoading);
 
   useDocumentMeta(
     'Kelola Pemilihan',
@@ -36,7 +35,8 @@ export default function AdminDashboardPage() {
   );
 
   useEffect(() => {
-    dispatch(asyncFetchElections());
+    const request = dispatch(asyncFetchElections());
+    return () => request.abort();
   }, [dispatch]);
 
   const handleDelete = async (election) => {
@@ -46,7 +46,7 @@ export default function AdminDashboardPage() {
     });
     if (!confirmed) return;
 
-    const result = await dispatchThunk(dispatch, asyncDeleteElection(election.id));
+    const result = await dispatch(asyncDeleteElection(election.id));
 
     if (asyncDeleteElection.rejected.match(result)) {
       await showErrorDialog({ title: 'Gagal menghapus pemilihan', text: result.payload });
@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
     if (isLoading && elections.length === 0) {
       return <LoadingState label="Memuat daftar pemilihan…" />;
     }
-    if (error) {
+    if (error && elections.length === 0) {
       return (
         <ErrorState error={{ message: error }} onRetry={() => dispatch(asyncFetchElections())} />
       );
@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
     }
 
     return (
-      <section className="table-scroll" aria-label="Tabel daftar pemilihan">
+      <div className="table-scroll" tabIndex={0} role="region" aria-label="Tabel daftar pemilihan">
         <table className="table">
           <caption className="visually-hidden">Daftar pemilihan beserta jadwal dan aksi</caption>
           <thead>
@@ -108,12 +108,7 @@ export default function AdminDashboardPage() {
                     {election.totalVotes > 0 ? (
                       <span className="muted">Terkunci</span>
                     ) : (
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          handleDelete(election);
-                        }}
-                      >
+                      <Button variant="secondary" onClick={() => handleDelete(election)}>
                         Hapus<span className="visually-hidden"> {election.title}</span>
                       </Button>
                     )}
@@ -123,7 +118,7 @@ export default function AdminDashboardPage() {
             ))}
           </tbody>
         </table>
-      </section>
+      </div>
     );
   };
 

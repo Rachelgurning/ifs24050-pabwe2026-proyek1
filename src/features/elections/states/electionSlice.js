@@ -17,33 +17,39 @@ const initialState = {
   elections: [],
   election: null,
   results: null,
-  isElections: false,
-  isElection: false,
-  isResults: false,
-  isMutating: false,
+  isElectionsLoading: false,
+  isElectionLoading: false,
+  isResultsLoading: false,
+  isElectionMutating: false,
   error: null,
 };
 
 const toMessage = (error) => error?.message ?? 'Terjadi kesalahan pada server.';
 
+/**
+ * Membungkus thunk agar `AbortSignal` milik Redux Toolkit diteruskan ke lapisan API.
+ * Permintaan otomatis dibatalkan ketika thunk di-`abort` (mis. komponen unmount),
+ * dan pembatalan tidak diperlakukan sebagai kegagalan yang perlu ditampilkan.
+ */
 function createApiThunk(type, handler) {
-  return createAsyncThunk(type, async (arg, { rejectWithValue }) => {
+  return createAsyncThunk(type, async (arg, { rejectWithValue, signal }) => {
     try {
-      return await handler(arg);
+      return await handler(arg, signal);
     } catch (error) {
+      if (error.name === 'AbortError') throw error;
       return rejectWithValue(toMessage(error));
     }
   });
 }
 
-export const asyncFetchElections = createApiThunk(ELECTION_ACTION_TYPE.FETCH_ALL, () =>
-  electionApi.list(),
+export const asyncFetchElections = createApiThunk(ELECTION_ACTION_TYPE.FETCH_ALL, (_arg, signal) =>
+  electionApi.list(signal),
 );
-export const asyncFetchElection = createApiThunk(ELECTION_ACTION_TYPE.FETCH_DETAIL, (id) =>
-  electionApi.detail(id),
+export const asyncFetchElection = createApiThunk(ELECTION_ACTION_TYPE.FETCH_DETAIL, (id, signal) =>
+  electionApi.detail(id, signal),
 );
-export const asyncFetchResults = createApiThunk(ELECTION_ACTION_TYPE.FETCH_RESULTS, (id) =>
-  electionApi.results(id),
+export const asyncFetchResults = createApiThunk(ELECTION_ACTION_TYPE.FETCH_RESULTS, (id, signal) =>
+  electionApi.results(id, signal),
 );
 export const asyncCreateElection = createApiThunk(ELECTION_ACTION_TYPE.CREATE, (payload) =>
   electionApi.create(payload),
@@ -84,52 +90,52 @@ const electionSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(asyncFetchElections.pending, (state) => {
-        state.isElections = true;
+        state.isElectionsLoading = true;
         state.error = null;
       })
       .addCase(asyncFetchElections.fulfilled, (state, action) => {
-        state.isElections = false;
+        state.isElectionsLoading = false;
         state.elections = action.payload;
       })
       .addCase(asyncFetchElections.rejected, (state, action) => {
-        state.isElections = false;
+        state.isElectionsLoading = false;
         state.error = action.payload;
       })
       .addCase(asyncFetchElection.pending, (state) => {
-        state.isElection = true;
+        state.isElectionLoading = true;
         state.error = null;
       })
       .addCase(asyncFetchElection.fulfilled, (state, action) => {
-        state.isElection = false;
+        state.isElectionLoading = false;
         state.election = action.payload;
       })
       .addCase(asyncFetchElection.rejected, (state, action) => {
-        state.isElection = false;
+        state.isElectionLoading = false;
         state.election = null;
         state.error = action.payload;
       })
       .addCase(asyncFetchResults.pending, (state) => {
-        state.isResults = true;
+        state.isResultsLoading = true;
         state.error = null;
       })
       .addCase(asyncFetchResults.fulfilled, (state, action) => {
-        state.isResults = false;
+        state.isResultsLoading = false;
         state.results = action.payload;
       })
       .addCase(asyncFetchResults.rejected, (state, action) => {
-        state.isResults = false;
+        state.isResultsLoading = false;
         state.results = null;
         state.error = action.payload;
       })
       .addCase(asyncDeleteElection.fulfilled, (state, action) => {
-        state.isMutating = false;
+        state.isElectionMutating = false;
         state.elections = state.elections.filter((item) => item.id !== action.payload);
       })
       .addMatcher(
         (action) => action.type.startsWith('elections/') && action.type.endsWith('/pending'),
         (state, action) => {
           if (action.type.includes('fetch')) return;
-          state.isMutating = true;
+          state.isElectionMutating = true;
           state.error = null;
         },
       )
@@ -137,7 +143,7 @@ const electionSlice = createSlice({
         (action) => action.type.startsWith('elections/') && action.type.endsWith('/rejected'),
         (state, action) => {
           if (action.type.includes('fetch')) return;
-          state.isMutating = false;
+          state.isElectionMutating = false;
           state.error = action.payload;
         },
       )
@@ -145,7 +151,7 @@ const electionSlice = createSlice({
         (action) => action.type.startsWith('elections/') && action.type.endsWith('/fulfilled'),
         (state, action) => {
           if (action.type.includes('fetch')) return;
-          state.isMutating = false;
+          state.isElectionMutating = false;
         },
       );
   },

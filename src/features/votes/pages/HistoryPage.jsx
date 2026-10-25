@@ -14,17 +14,18 @@ export default function HistoryPage() {
   const dispatch = useDispatch();
   const history = useSelector(selectVoteHistory);
   const error = useSelector(selectVoteError);
-  const isLoading = useSelector((state) => state.votes.isHistory);
+  const isLoading = useSelector((state) => state.votes.isHistoryLoading);
 
   useDocumentMeta('Riwayat Partisipasi', 'Daftar pemilihan yang telah Anda ikuti di VoteDel.');
 
   useEffect(() => {
-    dispatch(asyncFetchVoteHistory());
+    const request = dispatch(asyncFetchVoteHistory());
+    return () => request.abort();
   }, [dispatch]);
 
   const renderContent = () => {
     if (isLoading && history.length === 0) return <LoadingState label="Memuat riwayat…" />;
-    if (error) {
+    if (error && history.length === 0) {
       return (
         <ErrorState
           error={{ message: error }}

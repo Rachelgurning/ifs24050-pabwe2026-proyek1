@@ -14,10 +14,10 @@ describe('voteSlice', () => {
 
   it('menandai suara terkirim setelah berhasil', () => {
     const pending = voteReducer(initialState(), { type: asyncCastVote.pending.type });
-    expect(pending.isVoting).toBe(true);
+    expect(pending.isVoteSubmitting).toBe(true);
 
     const state = voteReducer(pending, { type: asyncCastVote.fulfilled.type });
-    expect(state.isVoting).toBe(false);
+    expect(state.isVoteSubmitting).toBe(false);
     expect(state.isVoted).toBe(true);
   });
 

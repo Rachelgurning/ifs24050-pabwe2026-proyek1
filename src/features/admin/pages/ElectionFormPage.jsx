@@ -12,13 +12,11 @@ import {
   asyncCreateElection,
   asyncFetchElection,
   asyncUpdateElection,
-  electionCleared,
   selectElection,
   selectElectionError,
 } from '../../elections/states/electionSlice.js';
 import { CandidateManager } from '../components/CandidateManager.jsx';
 import { ElectionForm } from '../components/ElectionForm.jsx';
-import { dispatchThunk } from '../../../helpers/thunkHelper.js';
 
 function CreateElection() {
   const dispatch = useDispatch();
@@ -27,7 +25,7 @@ function CreateElection() {
   useDocumentMeta('Buat Pemilihan', 'Buat pemilihan baru di VoteDel.');
 
   const handleCreate = async (payload) => {
-    const result = await dispatchThunk(dispatch, asyncCreateElection(payload));
+    const result = await dispatch(asyncCreateElection(payload));
 
     if (asyncCreateElection.rejected.match(result)) {
       throw new Error(result.payload);
@@ -54,21 +52,15 @@ function EditElection({ id }) {
 
   const reload = useCallback(() => dispatch(asyncFetchElection(id)), [dispatch, id]);
 
-  // Data dibersihkan saat keluar agar halaman ubah lain tidak menampilkan data basi.
   useEffect(() => {
-    reload();
-    return () => {
-      dispatch(electionCleared());
-    };
-  }, [reload, dispatch]);
+    const request = reload();
+    return () => request.abort();
+  }, [reload]);
 
   useDocumentMeta('Ubah Pemilihan', 'Ubah data pemilihan dan kelola kandidat di VoteDel.');
 
   const handleUpdate = async (payload) => {
-    const result = await dispatchThunk(
-      dispatch,
-      asyncUpdateElection({ id: election.id, payload }),
-    );
+    const result = await dispatch(asyncUpdateElection({ id: election.id, payload }));
 
     if (asyncUpdateElection.rejected.match(result)) {
       throw new Error(result.payload);
@@ -77,16 +69,10 @@ function EditElection({ id }) {
     reload();
   };
 
-  // Error mutasi (simpan kandidat/pemilihan) ditampilkan di formulir; halaman hanya
-  // diganti ErrorState bila data pemilihan memang gagal dimuat. Saat memuat ulang
-  // setelah simpan, formulir tetap tampil agar pesan sukses terlihat.
-  if (!election) {
-    return error ? (
-      <ErrorState error={{ message: error }} onRetry={reload} />
-    ) : (
-      <LoadingState label="Memuat data pemilihan…" />
-    );
-  }
+  // Hanya kegagalan pemuatan awal yang menggantikan halaman; kegagalan simpan
+  // ditampilkan di dalam formulir agar konteks pengguna tidak hilang.
+  if (error && !election) return <ErrorState error={{ message: error }} onRetry={reload} />;
+  if (!election) return <LoadingState label="Memuat data pemilihan…" />;
 
   const locked = election.totalVotes > 0;
 

@@ -73,7 +73,12 @@ export function CandidateManager({ electionId, candidates, locked, onChanged }) 
                   <Button variant="secondary" onClick={() => setEditing(candidate)}>
                     Ubah<span className="visually-hidden"> {candidate.name}</span>
                   </Button>
-                  <Button variant="secondary" onClick={() => handleDelete(candidate)}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      handleDelete(candidate);
+                    }}
+                  >
                     Hapus<span className="visually-hidden"> {candidate.name}</span>
                   </Button>
                 </span>

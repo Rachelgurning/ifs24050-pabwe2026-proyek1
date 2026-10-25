@@ -76,19 +76,20 @@ export default function ElectionsPage() {
         subtitle="Pilih pemilihan untuk melihat kandidat dan memberikan suara."
       />
 
-      <div className="filter-bar" role="group" aria-label="Filter status pemilihan">
+      <fieldset className="filter-bar">
+        <legend className="visually-hidden">Filter status pemilihan</legend>
         {FILTERS.map(({ value, label }) => (
           <button
             key={value}
             type="button"
-            className={`chip${filter === value ? ' chip--active' : ''}`}
+            className={filter === value ? 'chip chip--active' : 'chip'}
             aria-pressed={filter === value}
             onClick={() => setFilter(value)}
           >
             {label}
           </button>
         ))}
-      </div>
+      </fieldset>
 
       {renderContent()}
     </>

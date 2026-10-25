@@ -53,7 +53,8 @@ function buildUrl(path, params) {
     Object.entries(params ?? {}).filter(([, value]) => value !== undefined && value !== null),
   ).toString();
 
-  return `${BASE_URL}${path}${query ? `?${query}` : ''}`;
+  const search = query ? '?' + query : '';
+  return BASE_URL + path + search;
 }
 
 function buildHeaders({ hasBody, token }) {

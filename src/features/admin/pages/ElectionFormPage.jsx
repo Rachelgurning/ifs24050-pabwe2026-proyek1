@@ -69,8 +69,16 @@ function EditElection({ id }) {
     reload();
   };
 
-  if (error) return <ErrorState error={{ message: error }} onRetry={reload} />;
-  if (!election || isLoading) return <LoadingState label="Memuat data pemilihan…" />;
+  // Error mutasi (simpan kandidat/pemilihan) ditampilkan di formulir; halaman hanya
+  // diganti ErrorState bila data pemilihan memang gagal dimuat.
+  if (!election) {
+    return error ? (
+      <ErrorState error={{ message: error }} onRetry={reload} />
+    ) : (
+      <LoadingState label="Memuat data pemilihan…" />
+    );
+  }
+  if (isLoading) return <LoadingState label="Memuat data pemilihan…" />;
 
   const locked = election.totalVotes > 0;
 

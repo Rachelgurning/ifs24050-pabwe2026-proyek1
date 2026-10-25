@@ -2,8 +2,7 @@ import { useCallback, useState } from 'react';
 import { ApiError } from '../helpers/apiHelper.js';
 
 function omitKey(source, key) {
-  const { [key]: _removed, ...rest } = source;
-  return rest;
+  return Object.fromEntries(Object.entries(source).filter(([name]) => name !== key));
 }
 
 function focusFirstInvalidField(form) {
@@ -26,10 +25,8 @@ export function useForm({ initialValues, validate, onSubmit }) {
     setErrors((previous) => (previous[name] ? omitKey(previous, name) : previous));
   }, []);
 
-  const handleSubmit = useCallback(
-    async (event) => {
-      event.preventDefault();
-      const form = event.currentTarget;
+  const submit = useCallback(
+    async (form) => {
       const validationErrors = validate(values);
 
       setSubmitError('');
@@ -54,6 +51,15 @@ export function useForm({ initialValues, validate, onSubmit }) {
       }
     },
     [onSubmit, validate, values],
+  );
+
+  // Handler sinkron untuk atribut onSubmit; proses async ditangani di dalam `submit`.
+  const handleSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+      submit(event.currentTarget);
+    },
+    [submit],
   );
 
   return { values, errors, submitError, submitting, handleChange, handleSubmit };

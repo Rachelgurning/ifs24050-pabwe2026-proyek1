@@ -47,8 +47,9 @@ export function VoteForm({ electionId, candidates, onVoted }) {
           {candidates.map((candidate) => (
             <label
               key={candidate.id}
-              className={`card vote-option${candidate.id === selectedId ? ' vote-option--selected' : ''}`}
+              className={candidate.id === selectedId ? 'card vote-option vote-option--selected' : 'card vote-option'}
             >
+              <span className="visually-hidden">Pilih {candidate.name}</span>
               <input
                 type="radio"
                 name="candidate"
@@ -67,26 +68,27 @@ export function VoteForm({ electionId, candidates, onVoted }) {
       {error && <Alert variant="error">{error}</Alert>}
 
       {confirming && selected ? (
-        <div className="confirm-box" role="group" aria-labelledby="confirm-title">
+        <section className="confirm-box" aria-labelledby="confirm-title">
           <h3 id="confirm-title" className="confirm-box__title">
             Konfirmasi pilihan Anda
           </h3>
           <p>
-            Anda akan memilih{' '}
-            <strong>
-              nomor {selected.number} – {selected.name}
-            </strong>
-            . Suara yang sudah dikirim tidak dapat diubah.
+            Anda akan memilih <strong>{`nomor ${selected.number} – ${selected.name}`}</strong>.
+            Suara yang sudah dikirim tidak dapat diubah.
           </p>
           <div className="button-row">
-            <Button onClick={handleConfirm} loading={isVoting} loadingText="Mengirim suara…">
+            <Button
+              onClick={() => {
+                handleConfirm();
+              }}
+              loading={isVoting} loadingText="Mengirim suara…">
               Ya, kirim suara
             </Button>
             <Button variant="secondary" onClick={() => setConfirming(false)} disabled={isVoting}>
               Ubah pilihan
             </Button>
           </div>
-        </div>
+        </section>
       ) : (
         <Button type="submit" disabled={!selected}>
           Lanjutkan

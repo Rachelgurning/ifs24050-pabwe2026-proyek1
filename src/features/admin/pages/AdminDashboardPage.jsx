@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
     }
 
     return (
-      <div className="table-scroll" tabIndex={0} role="region" aria-label="Tabel daftar pemilihan">
+      <section className="table-scroll" aria-label="Tabel daftar pemilihan">
         <table className="table">
           <caption className="visually-hidden">Daftar pemilihan beserta jadwal dan aksi</caption>
           <thead>
@@ -107,7 +107,12 @@ export default function AdminDashboardPage() {
                     {election.totalVotes > 0 ? (
                       <span className="muted">Terkunci</span>
                     ) : (
-                      <Button variant="secondary" onClick={() => handleDelete(election)}>
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          handleDelete(election);
+                        }}
+                      >
                         Hapus<span className="visually-hidden"> {election.title}</span>
                       </Button>
                     )}
@@ -117,7 +122,7 @@ export default function AdminDashboardPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
     );
   };
 
